@@ -1,0 +1,62 @@
+const handleHandTracking = (landmarks) => {
+    if (!landmarks.length) return;
+
+    const indexTip = landmarks[8];
+    const middleTip = landmarks[12];
+
+    const x = indexTip.x * canvasRef.current.width;
+    const y = indexTip.y * canvasRef.current.height;
+
+    // Check if two fingers (index and middle) are up
+    const isTwoFingersUp = landmarks[8].y < landmarks[6].y && landmarks[12].y < landmarks[10].y;
+
+    // Check if palm is fully open (all fingers up)
+    const isPalmOpen = landmarks.every((point, idx) => idx % 4 === 0 && point.y < landmarks[idx - 2]?.y);
+
+    // Handle palm open for 2 seconds
+    if (isPalmOpen) {
+        if (!window.palmTimer) {
+            window.palmTimer = setTimeout(() => {
+                ctxRef.current.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height);
+                console.log("Canvas Cleared!");
+            }, 2000);
+        }
+    } else {
+        clearTimeout(window.palmTimer);
+        window.palmTimer = null;
+    }
+
+    // Switch to eraser if two fingers are up
+    if (isTwoFingersUp) {
+        ctxRef.current.strokeStyle = 'white'; // Assuming canvas background is white
+        ctxRef.current.lineWidth = 30; // Wider line for erasing
+    } else {
+        ctxRef.current.strokeStyle = 'black';
+        ctxRef.current.lineWidth = 5;
+    }
+
+    // Draw or erase
+    if (!isDrawing.current) {
+        lastX = x;
+        lastY = y;
+        isDrawing.current = true;
+    }
+
+    ctxRef.current.beginPath();
+    ctxRef.current.moveTo(lastX, lastY);
+    ctxRef.current.lineTo(x, y);
+    ctxRef.current.lineCap = 'round';
+    ctxRef.current.stroke();
+    ctxRef.current.closePath();
+
+    lastX = x;
+    lastY = y;
+
+    if (dataChannelRef.current && dataChannelRef.current.readyState === 'open') {
+        try {
+            dataChannelRef.current.send(JSON.stringify({ type: 'draw', x, y }));
+        } catch (error) {
+            console.error("Error sending hand tracking data:", error);
+        }
+    }
+};

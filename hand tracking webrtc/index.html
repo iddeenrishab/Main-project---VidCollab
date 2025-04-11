@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hand Tracking Drawing Board</title>
+  <link rel="icon" type="image/x-icon" href="/favicon-32x32.png">
+  <link rel="stylesheet" href="styles.css">
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils"></script>
+</head>
+<body>
+  <script type="module" defer src="./app.js"></script>
+  <div id="tool-container">Current Tool: <span id="current-tool">None</span></div>
+  <video id="video" autoplay muted playsinline></video>
+  <canvas id="canvas"></canvas>
+</body>
+</html>
